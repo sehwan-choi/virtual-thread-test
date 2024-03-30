@@ -1,0 +1,18 @@
+spring.application.name: async-client
+spring.main.allow-bean-definition-overriding: true
+spring.threads.virtual.enabled: true
+
+management:
+  endpoint:
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: info, health, metrics, prometheus
+#        include: "*"
+  metrics:
+    tags:
+      application: async-monitor
