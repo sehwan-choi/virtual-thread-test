@@ -7,5 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 public interface TestClient {
 
     @GetMapping
-    String test();
+    Integer test();
+
+    @GetMapping("/e")
+    Integer teste();
 }

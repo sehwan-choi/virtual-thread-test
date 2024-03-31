@@ -1,11 +1,17 @@
 package com.test.asyncclient;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class TestController {
 
     private final ThreadPoolTaskExecutorService threadPoolTaskExecutorService;
@@ -13,6 +19,8 @@ public class TestController {
     private final DefaultThreadService defaultThreadService;
 
     private final VirtualThreadExecutorService virtualThreadPoolTaskExecutorService;
+
+    private final ExceptionCheckService checkService;
     static int count = 0;
 
     /**
@@ -44,9 +52,9 @@ public class TestController {
      *      virtual :
      */
 
-    @GetMapping("/1")
-    public String test1() {
-        threadPoolTaskExecutorService.test();
+    @GetMapping("/t/{mainCount}/{threadCount}")
+    public String test1(@PathVariable("mainCount") int mainCount, @PathVariable("threadCount") int threadCount) {
+        threadPoolTaskExecutorService.test(mainCount, threadCount);
         return "OK";
     }
 
@@ -67,9 +75,9 @@ public class TestController {
      *      count 200 * 30
      *      virtual : 9646ms
      */
-    @GetMapping("/v")
-    public String vtest1() {
-        virtualThreadPoolTaskExecutorService.test();
+    @GetMapping("/v/{mainCount}/{threadCount}")
+    public String vtest1(@PathVariable("mainCount") int mainCount, @PathVariable("threadCount") int threadCount) {
+        virtualThreadPoolTaskExecutorService.test(mainCount, threadCount);
         return "OK";
     }
 
@@ -93,9 +101,9 @@ public class TestController {
      *      virtual : 36436ms
      */
 
-    @GetMapping("/2")
-    public String test2() {
-        defaultThreadService.test();
+    @GetMapping("/d/{mainCount}/{threadCount}")
+    public String test2(@PathVariable("mainCount") int mainCount, @PathVariable("threadCount") int threadCount) {
+        defaultThreadService.test(mainCount, threadCount);
         return "OK";
     }
 
@@ -121,9 +129,66 @@ public class TestController {
      *      no virtual : 36553ms
      */
 
-    @GetMapping("/3")
-    public String test21() {
-        defaultThreadService.test2();
+    @GetMapping("/e/{mainCount}/{threadCount}")
+    public String teste(@PathVariable("mainCount") int mainCount, @PathVariable("threadCount") int threadCount) {
+        List<Integer> test = checkService.test(mainCount,threadCount);
+        String collect = test.stream().map(String::valueOf).collect(Collectors.joining(","));
+        System.out.println("collect = " + collect);
+        return "OK";
+    }
+
+    /**
+     * count 10 (1개 2초씩)
+     * 18228ms
+     *
+     * count 20
+     * 35578ms
+     *
+     * count 30
+     * 55986ms
+     *
+     * count 40
+     * 77195ms
+     *
+     * count 50
+     * 84960ms
+     *
+     * count 60
+     *
+     *
+     * count 70
+     */
+    @GetMapping("/cpu/v/{mainCount}")
+    public String cpuV(@PathVariable("mainCount") int mainCount) {
+        virtualThreadPoolTaskExecutorService.cpu(mainCount);
+        return "OK";
+    }
+
+    /**
+     * count 10 (1개 2초씩)
+     * 19385ms
+     *
+     * count 20
+     * 40404ms
+     *
+     * count 30
+     * 50942ms
+     *
+     * count 40
+     * 71511ms
+     *
+     * count 50
+     * 84784ms
+     *
+     * count 60
+     *
+     *
+     * count 70
+     *
+     */
+    @GetMapping("/cpu/{mainCount}")
+    public String cpu(@PathVariable("mainCount") int mainCount) {
+        threadPoolTaskExecutorService.cpu(mainCount);
         return "OK";
     }
 }

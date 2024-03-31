@@ -1,6 +1,6 @@
 spring.application.name: async-client
 spring.main.allow-bean-definition-overriding: true
-spring.threads.virtual.enabled: true
+#spring.threads.virtual.enabled: true
 
 management:
   endpoint:
